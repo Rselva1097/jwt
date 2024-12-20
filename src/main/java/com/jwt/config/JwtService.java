@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
+@Slf4j
 public class JwtService {
 
 
@@ -34,6 +36,8 @@ public class JwtService {
     public <T> T extractClaims(String token, Function<Claims,T> claimsResolver){
         final Claims claims= extractAllClaims(token);
 
+        log.info("[extractClaims] claims: {}", claims);
+
         return claimsResolver.apply(claims);
     }
 
@@ -50,6 +54,9 @@ public class JwtService {
             UserDetails userDetails, long jwtExpiration
     ){
 
+        log.info("[buildToken] extra claim and userDetails : {}, {}",extraClaims,userDetails);
+        log.info("[buildToken] getSignInKey : {}",getSignInKey());
+        log.info("[buildToken] Signature Algorithem : {}", SignatureAlgorithm.HS256);
 
         return Jwts
                 .builder()

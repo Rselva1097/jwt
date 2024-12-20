@@ -1,7 +1,7 @@
 package com.jwt.config;
 
-import jakarta.security.auth.message.config.AuthConfigProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -20,6 +20,7 @@ import static org.springframework.http.HttpMethod.*;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@Slf4j
 public class SecurityConfiguration {
 
     public static final String WHITE_LIST_URL = "/api/v1/auth/**";
@@ -27,6 +28,9 @@ public class SecurityConfiguration {
     private  final AuthenticationProvider authenticationProvider;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+
+        log.info("[SecurityConfiguration] Security Filter Chain] ");
+
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
@@ -44,6 +48,7 @@ public class SecurityConfiguration {
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter,UsernamePasswordAuthenticationFilter.class);
 
+//        log.info("[SecurityConfiguration] Security Filter Chain] http Security build : {}",httpSecurity.build().toString());
 
         return httpSecurity.build();
     }

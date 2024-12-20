@@ -11,6 +11,7 @@ import com.jwt.user.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,6 +23,7 @@ import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthenticationService {
 
     private final UserRepository userRepository;
@@ -29,9 +31,10 @@ public class AuthenticationService {
     private  final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final TokenRepository tokenRepository;
+
     public AuthenticationResponse register(RegisterRequest request) {
 
-        System.out.println("in service layer");
+        log.info("in service layer");
 
         var user= User.builder().firstName(request.getFirstname())
                 .lastName(request.getLastname())
@@ -40,6 +43,7 @@ public class AuthenticationService {
                 .role(request.getRole())
                 .build();
        var savedUser= userRepository.save(user);
+        log.info("Saved User : {}",savedUser);
 
         var jwtToken=jwtService.generateToken(user);
         var refreshToken=jwtService.generateRefreshToken(user);
@@ -59,6 +63,9 @@ public class AuthenticationService {
                 .expired(false)
                 .revoked(false)
                 .build();
+
+        log.info("[AuthenticationService] save user token] ,{}",token);
+
         tokenRepository.save(token);
     }
     public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest){
@@ -73,6 +80,9 @@ public class AuthenticationService {
                 .orElseThrow();
         var jwtToken=jwtService.generateToken(user);
         var refreshToken=jwtService.generateRefreshToken(user);
+
+        log.info("[AuthenticationService] authenticate] user and jwtToken and refreshToken ,{} {} {}",user,jwtToken,refreshToken);
+
 
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
